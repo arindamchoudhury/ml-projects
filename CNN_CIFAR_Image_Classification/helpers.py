@@ -9,6 +9,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets
 from tqdm import tqdm
 
+DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def get_train_val_data_loaders(batch_size, valid_size, transforms, num_workers):
 
@@ -55,8 +56,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
     """
 
     # Move model to GPU if available
-    if torch.cuda.is_available():
-        model.cuda()  # -
+    model.to(DEVICE)
 
     # Set the model in training mode
     # (so all layers that behave differently between training and evaluation,
@@ -74,8 +74,7 @@ def train_one_epoch(train_dataloader, model, optimizer, loss):
         ncols=80,
     ):
         # move data to GPU if available
-        if torch.cuda.is_available():
-            data, target = data.cuda(), target.cuda()
+        data, target = data.to(DEVICE), target.to(DEVICE)
 
         # 1. clear the gradients of all optimized variables
         optimizer.zero_grad()  # -
@@ -110,8 +109,7 @@ def valid_one_epoch(valid_dataloader, model, loss):
         model.eval()  # -
 
         # If the GPU is available, move the model to the GPU
-        if torch.cuda.is_available():
-            model.cuda()
+        model.to(DEVICE)
 
         # Loop over the validation dataset and accumulate the loss
         valid_loss = 0.0
@@ -123,8 +121,7 @@ def valid_one_epoch(valid_dataloader, model, loss):
             ncols=80,
         ):
             # move data to GPU if available
-            if torch.cuda.is_available():
-                data, target = data.cuda(), target.cuda()
+            data, target = data.to(DEVICE), target.to(DEVICE)
 
             # 1. forward pass: compute predicted outputs by passing inputs to the model
             output = model(data)  # =
@@ -198,8 +195,7 @@ def one_epoch_test(test_dataloader, model, loss):
         model.eval()  # -
 
         # if the GPU is available, move the model to the GPU
-        if torch.cuda.is_available():
-            model = model.cuda()
+        model = model.to(DEVICE)
 
         # Loop over test dataset
         # We also accumulate predictions and targets so we can return them
@@ -214,8 +210,7 @@ def one_epoch_test(test_dataloader, model, loss):
                 ncols=80
         ):
             # move data to GPU if available
-            if torch.cuda.is_available():
-                data, target = data.cuda(), target.cuda()
+            data, target = data.to(DEVICE), target.to(DEVICE)
 
             # 1. forward pass: compute predicted outputs by passing inputs to the model
             logits = model(data)  # =
